@@ -11,10 +11,10 @@ jobs:
 
     defaults:
       run:
-        working-directory: my-flash-app  # Ensures commands run inside your app folder
+        working-directory: my-flash-app
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -25,13 +25,19 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run tests
+      - name: Run automated tests
         run: pytest
 
   deploy:
-    needs: test  # Waits for the test job to succeed before running
+    needs: test  # Halts deployment if automated tests fail
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy application
-        run: echo "Deploying application..."
+      - name: Build / Deploy to Cloud Server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+        run: |
+          echo "Connecting to $SERVER_HOST as $SERVER_USERNAME..."
+          echo "Deploying application to production..."
